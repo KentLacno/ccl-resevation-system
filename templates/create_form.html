@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<section class="content">
+    <form class="form" method="post">
+        <h1 class="fs-2">Create a Reservation Form</h1>
+        <div class="mb-3 form-group">
+            <input class="form-control" type="week" id="week" name="week" min="2023-W26" max="2024-W26" required/>
+        </div>
+        <h3 class="fs-6">Monday</h3>
+        <div class="mb-3 form-check">
+            {% for food in food_items %}
+                <input class="form-check-input" type="checkbox" value="{{food['name']}}" name="monday" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+            {% endfor %}
+        </div>
+        <h3 class="fs-6">Tuesday</h3>
+        <div class="mb-3 form-check">
+            {% for food in food_items %}
+                <input class="form-check-input" type="checkbox" value="{{food['name']}}" name="tuesday" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+            {% endfor %}
+        </div>
+        <h3 class="fs-6">Wednesday</h3>
+        <div class="mb-3 form-check">
+            {% for food in food_items %}
+                <input class="form-check-input" type="checkbox" value="{{food['name']}}" name="wednesday" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+            {% endfor %}
+        </div>
+        <h3 class="fs-6">Thursday</h3>
+        <div class="mb-3 form-check">
+            {% for food in food_items %}
+                <input class="form-check-input" type="checkbox" value="{{food['name']}}" name="thursday" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+            {% endfor %}
+        </div>
+        <h3 class="fs-6">Friday</h3>
+        <div class="mb-3 form-check">
+            {% for food in food_items %}
+                <input class="form-check-input" type="checkbox" value="{{food['name']}}" name="friday" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+            {% endfor %}
+        </div>
+        <button type="submit">Create</button>
+    </form>
+</section> 
+{% endblock %}
+
+     
