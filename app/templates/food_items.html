@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+  <h1 class="m-4 fs-4">Food Items</h1>
+  <button type="button" class="m-4  btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFoodItem">
+    Add New Food 
+  </button>
+
+</div>
+
+<div class="m-4 mt-0 overflow-auto d-flex justify-content-center">
+  <table style="width:100%;" class="table table-hover table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th style="width: 200px;"  scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Image</th>
+        <th scope="col">In Used?</th>
+        <th scope="col">Edit/Delete (Only if not used)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for food_item in food_items %}
+        <tr class="item">
+          <th scope="row">{{food_item.name}}</th>
+          <td>₱{{food_item.price}}</td>
+          <td><img style="object-fit: cover; width:75px; height:75px;"  src="{{food_item.image}}"></td>
+          <td>{% if food_item.options %} Yes {% else %} No {% endif %} </td>
+          <td>
+            {% if not food_item.options %}
+            <div class="btn-group" data-toggle="buttons">
+              <form>
+                <button type="button" class="me-3 btn btn-warning" onclick='edit("{{food_item.name}}", "{{food_item.price}}", "{{food_item.image}}", "{{food_item.id}}")' data-bs-toggle="modal" data-bs-target="#editFoodItem">
+                  Edit 
+                </button>
+              </form>
+              <form action="{{ url_for('food_items.delete', id=food_item['id']) }}" method="post">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+            {% else %}
+                <button disabled type="button" class="me-2 btn btn-warning" onclick='edit("{{food_item.name}}", "{{food_item.price}}", "{{food_item.image}}")' data-bs-toggle="modal" data-bs-target="#editFoodItem">
+                  Edit 
+                </button>
+                <button disabled class="btn btn-danger">Delete</button>
+            </div>
+            {% endif %}
+
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="modal fade" id="addFoodItem" tabindex="-1" aria-labelledby="addFoodItemLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Food Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post">
+          <div class="mb-3 row">
+            <label for="Name" class="col-sm-3 col-form-label">Food Name</label>
+            <div class="col-sm-9">
+              <input type="input" class="form-control" name="name" id="name">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="Price" class="col-sm-3 col-form-label">Price</label>
+            <div class="col-sm-3">
+              <input type="number" class="form-control" name="price" id="price">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="Image URL" class="col-sm-3 col-form-label">Image URL</label>
+            <div class="col-sm-9">
+              <input type="input" class="form-control" name="image_url" id="image_url">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editFoodItem" tabindex="-1" aria-labelledby="editFoodItemLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Food Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post">
+          <div class="mb-3 row">
+            <label for="Name" class="col-sm-3 col-form-label">Food Name</label>
+            <div class="col-sm-9">
+              <input type="input" class="form-control name" name="name" id="name">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="Price" class="col-sm-3 col-form-label">Price</label>
+            <div class="col-sm-3">
+              <input type="number" class="price form-control" name="price" id="price">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="Image URL" class="col-sm-3 col-form-label">Image URL</label>
+            <div class="col-sm-9">
+              <input type="input" class="image form-control" name="image_url" id="image_url">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Edit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% if alert %}
+  {% if alert == "delete_success" %}
+  <div style="position:fixed; bottom:0; left: 0;" class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Delete Successful!</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+{% endif %}
+
+<script type="text/javascript">
+  function edit(name, price, url, id) {
+      var editModal = document.getElementById("editFoodItem");
+      console.log(editModal)
+      var form = editModal.getElementsByTagName("form")[0]
+      console.log(form)
+      var nameInput = editModal.getElementsByClassName("name")[0]
+      var priceInput = editModal.getElementsByClassName("price")[0]
+      var imageInput = editModal.getElementsByClassName("image")[0]
+
+      form.setAttribute("action", concat("{{ url_for('food_items.update', id=5) }}"))
+      nameInput.setAttribute("value", name)
+      priceInput.setAttribute("value", price)
+      imageInput.setAttribute("value", url)
+
+  }
+</script>
+{% endblock %}
+  

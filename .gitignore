@@ -1,5 +1,6 @@
 credentials.json
-token.json
+form_token.json
+script_token.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

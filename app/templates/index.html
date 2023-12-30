@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+
+{% if primary_form %}
+
+<h1 class=" m-4 fs-4">Primary Form</h1>
+<div class="m-4 overflow-auto">
+  <table style="width:1600px;" class="table table-hover table-success table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Active?</th>
+        <th scope="col">Week</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Responder URL</th>
+        <th scope="col">Set Active/Primary</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr role="button" class="item" onclick="window.location='/form/{{primary_form.id}}';">
+          <th scope="row">{{primary_form.id}}</th>
+          <td>{{primary_form.active}}</td>
+          <td>{{primary_form.week}}</td>
+          <td>{{primary_form.created_at}}</td>
+          <td><a href="{{primary_form.responder_uri}}">{{primary_form.responder_uri}}</a></td>
+          <td>
+            <form action="/set_primary_property/{{primary_form.id}}" method="post">
+              <button class="btn btn-secondary">Unset Primary</button>
+            </form>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<h1 class=" m-4 fs-4">Reservation Forms</h1>
+<div class="m-4 overflow-auto">
+  <table style="width:1600px;" class="table table-hover table-bordered">
+    <caption>
+      <b>Active</b> - Can accept student responses <br>
+     <b>Primary</b> - Main form to focus on
+    </caption>
+    <thead class="table-light">
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Active?</th>
+        <th scope="col">Week</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Responder URL</th>
+        <th scope="col">Set Active/Primary</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for form in forms %}
+        <tr role="button" class="item" onclick="window.location='/form/{{form.id}}';">
+          <th scope="row">{{form.id}}</th>
+          <td>{{form.active}}</td>
+          <td>{{form.week}}</td>
+          <td>{{form.created_at}}</td>
+          <td><a href="{{form.responder_uri}}">{{form.responder_uri}}</a></td>
+          <td>
+            {% if form.active %}
+            <div class="btn-group" data-toggle="buttons">
+              <form action="/set_primary_property/{{form.id}}" method="post">
+                <button class="btn btn-success me-1">Set Primary</button>
+              </form>
+              <form action="/set_active_property/{{form.id}}" method="post">
+                <button class="btn btn-secondary">Set Inactive</button>
+              </form>
+            </div>
+            {% else %}
+            <form action="/set_active_property/{{form.id}}" method="post">
+              <button class="btn btn-primary">Set Active</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if alert %}
+  {% if alert == "primary_error" %}
+  <div style="position:fixed; bottom:0; left: 0;" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Primary Form Exists!</strong> Unset current primary form to set another form primary.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
