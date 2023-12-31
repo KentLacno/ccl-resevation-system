@@ -8,7 +8,7 @@
     <form class="form" method="post">
         <h1 class="fs-2 mb-4">Create a Reservation Form</h1>
         <div class="mb-3 form-group">
-            <input class="form-control" type="week" id="week" name="week" min="2023-W26" max="2024-W26" required/>
+            <input class="form-control" type="week"  name="week" min="2023-W26" max="2024-W26" required/>
         </div>
         <hr style="height:2px; width:300px;background-color:gray">
         {% for weekday in ["monday","tuesday","wednesday","thursday","friday"] %}
@@ -18,12 +18,16 @@
             <div class="mb-2 form-check">
                 {% for food in food_items %}
                 <div class="checkbox-{{weekday}} mb-1">
-                    <input class="form-check-input" type="checkbox" value="{{food.id}}" name="{{weekday}}" id="flexCheckDefault">
-                    <label class="form-check-label" for="flexCheckDefault" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
+                    <input onclick="selectCheckbox('{{food.name}}','{{food.price}}','{{food.id}}-{{weekday}}', '{{weekday}}')" class="form-check-input" type="checkbox" value="{{food.id}}" name="{{weekday}}" id="{{food.id}}-{{weekday}}">
+                    <label class="form-check-label" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
                 </div>
                 {% endfor %}
             </div>
+            <div id="tags-{{weekday}}" style="width:500px; text-align: center;">
+
+            </div>
             <hr style="height:2px; width:300px;background-color:gray">
+
         {% endfor %}
         <button type="submit" class="mb-5 btn btn-primary">Create</button>
     </form>
@@ -41,6 +45,17 @@
             } else {
                 checkboxes[i].style.display = "none";
             }
+        }
+    }
+
+    function selectCheckbox(name, price, id, weekday) {
+        var container = document.getElementById("tags-"+weekday);
+        var checkbox = document.getElementById(id);
+        if (checkbox.checked == true){
+            container.innerHTML += '<span id='+id+'-tag class="badge rounded-pill text-bg-secondary mb-0">'+name+' - ₱'+price+'</span>'
+        } else {
+            var tag = document.getElementById(id+'-tag');
+            container.removeChild(tag)
         }
     }
 </script>
