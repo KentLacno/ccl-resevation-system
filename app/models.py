@@ -21,6 +21,7 @@ class Respondent(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.Text)
     grade_section = db.Column(db.Text)
+    paid = db.Column(db.Boolean, default=False)
     form_id = db.Column(db.Integer, db.ForeignKey('form.form_id'))
     reservations = db.relationship("Reservation", backref="respondent")
 

@@ -13,7 +13,7 @@
         <hr style="height:2px; width:300px;background-color:gray">
         {% for weekday in ["monday","tuesday","wednesday","thursday","friday"] %}
             <h3 class="fs-6">{{weekday.capitalize()}}</h3>
-            <input type="text" class="form-control mb-3" style="width:200px; height:40px;" id="search-{{weekday}}" onkeyup='search("{{weekday}}")' placeholder="Search for names..">
+            <input type="text" class="form-control mb-3" style="width:200px; height:40px;" id="search-{{weekday}}" onkeyup='search("{{weekday}}")' placeholder="Search for food items..">
 
             <div class="mb-2 form-check">
                 {% for food in food_items %}

@@ -16,19 +16,28 @@
         <th style="width: 200px;"  scope="col">Name</th>
         <th scope="col">Price</th>
         <th scope="col">Image</th>
-        <th scope="col">In Used?</th>
-        <th scope="col">Edit/Delete (Only if not used)</th>
+        <th scope="col">Used in</th>
+        <th scope="col">Edit/Delete (Only if not used in active form)</th>
       </tr>
     </thead>
     <tbody>
       {% for food_item in food_items %}
+        {% set forms = food_item.options | map(attribute="form") | list | unique | list  %}
         <tr class="item">
           <th scope="row">{{food_item.name}}</th>
           <td>₱{{food_item.price}}</td>
           <td><img style="object-fit: cover; width:75px; height:75px;"  src="{{food_item.image}}"></td>
-          <td>{% if food_item.options %} Yes {% else %} No {% endif %} </td>
           <td>
-            {% if not food_item.options %}
+            {% for form in forms  %}
+              {% if form.active %}
+                <a href="/form/{{form.id}}">#{{form.id}}</a>
+              {% else %}
+                <a class="text-secondary" href="/form/{{form.id}}">#{{form.id}}</a>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            {% if not forms | rejectattr('active', 'false') | list %}
             <div class="btn-group" data-toggle="buttons">
               <form>
                 <button type="button" class="me-3 btn btn-warning" onclick='edit("{{food_item.name}}", "{{food_item.price}}", "{{food_item.image}}", "{{food_item.id}}")' data-bs-toggle="modal" data-bs-target="#editFoodItem">
@@ -133,14 +142,12 @@
 <script type="text/javascript">
   function edit(name, price, url, id) {
       var editModal = document.getElementById("editFoodItem");
-      console.log(editModal)
       var form = editModal.getElementsByTagName("form")[0]
-      console.log(form)
       var nameInput = editModal.getElementsByClassName("name")[0]
       var priceInput = editModal.getElementsByClassName("price")[0]
       var imageInput = editModal.getElementsByClassName("image")[0]
 
-      form.setAttribute("action", concat("{{ url_for('food_items.update', id=5) }}"))
+      form.setAttribute("action", "/food_items/"+id+"/update")
       nameInput.setAttribute("value", name)
       priceInput.setAttribute("value", price)
       imageInput.setAttribute("value", url)

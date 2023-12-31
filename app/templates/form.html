@@ -4,33 +4,56 @@
 <div style="height: 90vh;" class="m-3 d-flex flex-lg-row">
   <div class="overflow-auto border p-3 w-25">
     <h1>Form #{{form.id}}</h1>
-    <p>Week: {{form.week}}</p>
-    <p style="word-wrap:break-word";>Form URL: <a href="{{form.responder_uri}}">{{form.responder_uri}}</a></p>
+
+      {% if form.active %}
+        {% if form.primary %}
+          <span class="badge bg-success">Primary</span>
+        {% endif %}
+        <span class="badge bg-primary">Active</span>
+      {% else %}
+        <span class="badge bg-secondary">Inactive</span>
+      {% endif %}
+
+    <p class="mt-2"><b>Week:</b> {{form.week}}</p>
+    <p style="word-wrap:break-word";><b>Form URL:</b> <a href="{{form.responder_uri}}">{{form.responder_uri}}</a></p>
     <br>
     {% for weekday in ["monday","tuesday","wednesday","thursday","friday"] %}
-      <p>{{weekday.capitalize()}}</p>
+      <p><b>{{weekday.capitalize()}}:</b></p>
       {% for option in form.options %}
       <ul>
         {% if option.weekday == weekday %}
         <li>
-          <span class="badge rounded-pill text-bg-secondary">{{option.food_item.name}} - ₱{{option.food_item.price}}</span>
+          <span class="badge rounded-pill text-bg-secondary mb-0">{{option.food_item.name}} - ₱{{option.food_item.price}}</span>
         </li>
         {% endif %}
       </ul>
       {% endfor %}
     {% endfor %}
-
+    {% if form.active %}
+        {% if form.primary %}
+          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}" method="post">
+            <button class="btn btn-secondary">Unset Primary</button>
+          </form>
+        {% else %}
+          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}" method="post">
+            <button class="btn btn-success me-1">Set Primary</button>
+          </form>
+          <form class="text-center mt-2" action="/set_active_property/{{form.id}}" method="post">
+            <button class="btn btn-secondary">Set Inactive</button>
+          </form>
+        {% endif %}
+    {% else %}
+      <form class="text-center mt-4" action="/set_active_property/{{form.id}}" method="post">
+        <button class="btn btn-primary">Set Active</button>
+      </form>
+    {% endif %}
+    <form class="text-center mt-2" action="/edit_form/{{form.id}}" method="post">
+      <button class="btn btn-warning">Edit Form</button>
+    </form>
+  
   </div>
-  <div class="border p-2 w-75 text-end">
-    <!-- <div class="m-4 btn-group btn-group-toggle" data-toggle="buttons">
-      <label class="btn btn-secondary active">
-        <input onclick="toggle('order')" type="radio" name="options" id="option1" autocomplete="off" checked> By Reservation Orders
-      </label>
-      <label class="btn btn-secondary">
-        <input onclick="toggle('week')" type="radio" name="options" id="option2" autocomplete="off"> By Week
-      </label>
-    </div> -->
-    <button onclick="print()" class="m-4 btn btn-primary">Print Reservations</button>
+  <div class="border p-2 w-75 text-center">
+    <button onclick="print()" class="m-4 btn btn-primary">Print Paid Reservations</button>
     <div class="m-4 mt-0 overflow-auto">
       <table id="order-table" class="table table-hover table-bordered">
         <thead class="table-light">
@@ -50,39 +73,7 @@
             <tr role="button" class="item" data-bs-toggle="modal" data-bs-target="#showRespondent">
               <th scope="row">{{respondent.name}}</th>
               <td>{{respondent.grade_section}}</td>
-              <td>Pending</td> 
-              {% for weekday in ['monday','tuesday','wednesday','thursday','friday'] %}
-                <td>
-                  {% for reservation in respondent.reservations %}
-                    {% if reservation.weekday == weekday %}
-                    <span class="badge rounded-pill text-bg-secondary">{{reservation.food_item.name}} - ₱{{reservation.food_item.price}}  </span>
-                    {% endif %}
-                  {% endfor %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <table id="week-table" style="display: none;" class="table table-hover table-bordered">
-        <thead class="table-light">
-          <tr>
-            <th style="width: 100px;" scope="col">TESTT</th>
-            <th scope="col">Grade Section</th>
-            <th scope="col">Paid</th>
-            <th scope="col">Monday</th>
-            <th scope="col">Tuesday</th>
-            <th scope="col">Wednesday</th>
-            <th scope="col">Thursday</th>
-            <th scope="col">Friday</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for respondent in form.respondents %}
-            <tr role="button" class="item" data-bs-toggle="modal" data-bs-target="#showRespondent">
-              <th scope="row">{{respondent.name}}</th>
-              <td>{{respondent.grade_section}}</td>
-              <td>Pending</td> 
+              <td>{{"Paid" if respondent.paid else "Pending"}}</td> 
               {% for weekday in ['monday','tuesday','wednesday','thursday','friday'] %}
                 <td>
                   {% for reservation in respondent.reservations %}
@@ -99,39 +90,6 @@
     </div>
   </div>
 </div>
-
-
-<!-- <div class="modal fade" id="showRespondent" tabindex="-1" aria-labelledby="addFoodItemLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Respondent</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<script type="text/javascript">
-  function edit(respondent, price, url, id) {
-      var showRespondentModal = document.getElementById("showRespondent");
-      console.log(editModal)
-      var form = editModal.getElementsByTagName("form")[0]
-      console.log(form)
-      var nameInput = editModal.getElementsByClassName("name")[0]
-      var priceInput = editModal.getElementsByClassName("price")[0]
-      var imageInput = editModal.getElementsByClassName("image")[0]
-
-      form.setAttribute("action", concat("{{ url_for('food_items.update', id=5) }}"))
-      nameInput.setAttribute("value", name)
-      priceInput.setAttribute("value", price)
-      imageInput.setAttribute("value", url)
-
-  }
-</script> -->
 
 <script type="text/javascript">
   function toggle(option) {

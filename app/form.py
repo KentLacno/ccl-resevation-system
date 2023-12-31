@@ -15,3 +15,4 @@ def show(FormID):
   reservations = Reservation.query.all()
   
   return render_template('form.html', form=form, loads=ast.literal_eval, reservations=reservations)
+

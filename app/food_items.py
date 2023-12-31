@@ -4,6 +4,7 @@ from flask import (
     Blueprint, redirect, render_template, request,  url_for
 )
 from app.models import FoodItem
+from app.models import Options
 from app.db import db
 
 bp = Blueprint('food_items', __name__, )
@@ -26,7 +27,7 @@ def index():
 
     return redirect(url_for('food_items.index'))
   else:
-    return render_template('food_items.html', food_items=food_items, alert=alert, len=len)
+    return render_template('food_items.html', food_items=food_items, alert=alert, len=len, session=db.session)
   
 @bp.route('/food_items/<int:id>/update', methods=['POST'])
 def update(id):
