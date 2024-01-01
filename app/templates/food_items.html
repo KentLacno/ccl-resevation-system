@@ -30,9 +30,9 @@
           <td>
             {% for form in forms  %}
               {% if form.active %}
-                <a href="/form/{{form.id}}">#{{form.id}}</a>
+                <a class="text-primary me-2" href="/form/{{form.id}}">#{{form.id}}</a>
               {% else %}
-                <a class="text-secondary" href="/form/{{form.id}}">#{{form.id}}</a>
+                <a class="text-secondary me-2" href="/form/{{form.id}}">#{{form.id}}</a>
               {% endif %}
             {% endfor %}
           </td>

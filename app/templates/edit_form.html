@@ -4,33 +4,42 @@
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/checkboxes.css') }}">
 {% endblock %}
 {% block content %}
+<button class="m-3 btn btn-secondary" style="position: absolute;" onclick="window.location='/form/{{form.id}}';">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"/>
+  </svg>
+</button>
 <section class="content">
     <form class="form" method="post">
-        <h1 class="fs-2 mb-4">Create a Reservation Form</h1>
-        <div class="mb-3 form-group">
-            <input class="form-control" type="week"  name="week" min="2023-W26" max="2024-W26" required/>
-            <p class="mb-0 mt-1 text-muted">Note: Week can't be changed later</p>
-        </div>
+        <h1 class="fs-2">Edit Reservation Form #{{form.id}}</h1>
+        <h5>{{form.week}}</h5>
         <hr style="height:2px; width:300px;background-color:gray">
         {% for weekday in ["monday","tuesday","wednesday","thursday","friday"] %}
+            {% set present_food_items = form.options | selectattr("weekday", "eq", weekday) | list  | map(attribute="food_item") | list %}
             <h3 class="fs-6">{{weekday.capitalize()}}</h3>
             <input type="text" class="form-control mb-3" style="width:200px; height:40px;" id="search-{{weekday}}" onkeyup='search("{{weekday}}")' placeholder="Search for food items..">
 
             <div class="mb-2 form-check">
                 {% for food in food_items %}
-                <div class="checkbox-{{weekday}} mb-1">
+                  <div class="checkbox-{{weekday}} mb-1">
+                    {% if food in present_food_items %}
+                    <input checked onclick="selectCheckbox('{{food.name}}','{{food.price}}','{{food.id}}-{{weekday}}', '{{weekday}}')" class="form-check-input" type="checkbox" value="{{food.id}}" name="{{weekday}}" id="{{food.id}}-{{weekday}}">
+                    {% else %}
                     <input onclick="selectCheckbox('{{food.name}}','{{food.price}}','{{food.id}}-{{weekday}}', '{{weekday}}')" class="form-check-input" type="checkbox" value="{{food.id}}" name="{{weekday}}" id="{{food.id}}-{{weekday}}">
+                    {% endif %}
                     <label class="form-check-label" name="{{food['name']}}" id="{{food['value']}}">{{ food["name"] }} - ₱{{ food["price"] }}</label><br>
                 </div>
                 {% endfor %}
             </div>
             <div id="tags-{{weekday}}" style="width:500px; text-align: center;">
-
+              {% for food in present_food_items %}
+              <span id="{{food.id}}-{{weekday}}-tag" class="badge rounded-pill text-bg-secondary mb-0">{{ food["name"] }} - ₱{{ food["price"] }}</span>
+              {% endfor %}
             </div>
             <hr style="height:2px; width:300px;background-color:gray">
 
         {% endfor %}
-        <button type="submit" class="mb-5 btn btn-primary">Create</button>
+        <button type="submit" class="mb-5 btn btn-primary">Edit</button>
     </form>
 </section> 
 <script type="text/javascript">

@@ -55,17 +55,23 @@ def parse_date(week_data):
     return parsed_date
 
 def parse_body(form): 
-  weekdays = ["friday", "thursday", "wednesday", "tuesday", "monday"]
-  print(form)
+  weekdays = [
+    {"weekday":"monday","index": 2},
+    {"weekday":"tuesday","index": 3},
+    {"weekday":"wednesday","index": 4},
+    {"weekday":"thursday","index": 5},
+    {"weekday":"friday","index": 6}
+  ]
 
   def format_option(item):
     item = FoodItem.query.get(item)
  
     return {"value": "({id}) {name} - ₱{price}".format(id=item.id, name=item.name, price=item.price), "image": {"sourceUri": item.image}}
   
-  def convert_item(weekday):
+  def convert_item(weekday_data):
+    weekday = weekday_data["weekday"]
+    item = {}
     if form.getlist(weekday):
-      print(form.getlist(weekday)[0])
       item = {
           "createItem": {
             "item": {
@@ -79,15 +85,39 @@ def parse_body(form):
                 }
               },
             },
-            "location": {"index": 0},
+            "location": {"index": weekday_data["index"]},
           }
         }
-      return item
-    return 
+    else:
+      item = {
+          "createItem": {
+            "item": {
+              "title": (weekday.capitalize()),
+              "textItem": {},
+            },
+            "location": {"index": weekday_data["index"]},
+          }
+        }
+    
+    return item
     
   update = {
-  "requests": list(map(convert_item, weekdays)) +
-    [{
+  "requests": [
+    {
+        "createItem": {
+          "item": {
+            "title": "Name",
+            "questionItem": {
+              "question": {
+                "textQuestion": {
+                  "paragraph": False,
+                },
+              }
+            },
+          },
+          "location": {"index": 0},
+        }
+    },{
         "createItem": {
           "item": {
             "title": "Grade and Section",
@@ -108,25 +138,11 @@ def parse_body(form):
                 }
               },
           },
-          "location": {"index": 0}
+          "location": {"index": 1}
         }
       },
-      {
-        "createItem": {
-          "item": {
-            "title": "Name",
-            "questionItem": {
-              "question": {
-                "textQuestion": {
-                  "paragraph": False,
-                },
-              }
-            },
-          },
-          "location": {"index": 0},
-        }
-      }
-      ] 
+      ] + list(map(convert_item, weekdays))  
+    
   }
   return update
 

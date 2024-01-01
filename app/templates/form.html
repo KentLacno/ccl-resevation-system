@@ -47,7 +47,7 @@
         <button class="btn btn-primary">Set Active</button>
       </form>
     {% endif %}
-    <form class="text-center mt-2" action="/edit_form/{{form.id}}" method="post">
+    <form class="text-center mt-2" action="/edit_form/{{form.id}}">
       <button class="btn btn-warning">Edit Form</button>
     </form>
   
@@ -91,19 +91,21 @@
   </div>
 </div>
 
+<div class="modal fade" id="showRespondent" tabindex="-1" aria-labelledby="showRespondentLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Respondent</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
-  function toggle(option) {
-    var orderTable = document.getElementById("order-table");
-    var weekTable = document.getElementById("week-table");
-    if (option === "order") {
-      orderTable.style.display = "";
-      weekTable.style.display = "none";
-    }
-    else if (option === "week") {
-      orderTable.style.display = "none";
-      weekTable.style.display = "";
-    }
-  }
   function print() {
     window.location="{{ url_for('print_reservations.print', FormID=form.id) }}"
    

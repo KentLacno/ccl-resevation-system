@@ -4,6 +4,7 @@ from flask import Flask
 from app.db import db
 from . import form
 from . import create_form
+from . import edit_form
 from . import add_respondent
 from . import index
 from . import food_items
@@ -19,6 +20,7 @@ db.init_app(app)
 app.register_blueprint(index.bp)
 app.register_blueprint(form.bp)
 app.register_blueprint(create_form.bp)
+app.register_blueprint(edit_form.bp)
 app.register_blueprint(add_respondent.bp)
 app.register_blueprint(food_items.bp)
 app.register_blueprint(print_reservations.bp)
