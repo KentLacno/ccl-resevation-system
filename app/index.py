@@ -51,8 +51,8 @@ def index():
 
   return render_template('index.html', primary_form=primary_form, forms=forms, alert=alert)
 
-@bp.route("/set_active_property/<int:FormID>", methods=['POST'])
-def set_active_property(FormID):
+@bp.route("/set_active_property/<int:FormID>/<string:redirect_to>", methods=['POST'])
+def set_active_property(FormID, redirect_to):
   form = Form.query.get(FormID)
   script_service = build_script_service()
   script_id = "1-p9s-qcaqMkoVZnn84OJj5XOsrgvcfrFCXBaXN4QwTqzo_6x-jTkJ6qc"
@@ -81,10 +81,13 @@ def set_active_property(FormID):
   form.active = not form.active 
   db.session.commit()
 
-  return redirect(url_for('index'))
-
-@bp.route("/set_primary_property/<int:FormID>", methods=['POST'])
-def set_primary_property(FormID):
+  if redirect_to == "form":
+    return redirect(url_for('form.show', FormID=FormID))
+  elif redirect_to == "index":
+    return redirect(url_for('index'))
+  
+@bp.route("/set_primary_property/<int:FormID>/<string:redirect_to>", methods=['POST'])
+def set_primary_property(FormID, redirect_to):
   form = Form.query.get(FormID)
 
   if not form.primary and Form.query.filter_by(primary=True).first():
@@ -93,4 +96,7 @@ def set_primary_property(FormID):
   form.primary = not form.primary
   db.session.commit()
 
-  return redirect(url_for('index'))
+  if redirect_to == "form":
+    return redirect(url_for('form.show', FormID=FormID))
+  elif redirect_to == "index":
+    return redirect(url_for('index'))

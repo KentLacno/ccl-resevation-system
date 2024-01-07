@@ -6,6 +6,7 @@ from flask import (
 from app.models import Form
 from app.models import Options
 from app.models import Reservation
+from app.db import db
 
 bp = Blueprint('form', __name__, )
 
@@ -16,3 +17,10 @@ def show(FormID):
   
   return render_template('form.html', form=form, loads=ast.literal_eval, reservations=reservations)
 
+@bp.route("/form/<int:FormID>/delete")
+def delete(FormID):
+  form = Form.query.get(FormID)
+  db.session.delete(form)
+  db.session.commit()
+  
+  return redirect(url_for("index"))

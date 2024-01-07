@@ -31,29 +31,33 @@
     {% endfor %}
     {% if form.active %}
         {% if form.primary %}
-          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}" method="post">
+          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}/form" method="post">
             <button class="btn btn-secondary">Unset Primary</button>
           </form>
         {% else %}
-          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}" method="post">
+          <form class="text-center mt-4" action="/set_primary_property/{{form.id}}/form" method="post">
             <button class="btn btn-success me-1">Set Primary</button>
           </form>
-          <form class="text-center mt-2" action="/set_active_property/{{form.id}}" method="post">
+          <form class="text-center mt-2" action="/set_active_property/{{form.id}}/form" method="post">
             <button class="btn btn-secondary">Set Inactive</button>
           </form>
         {% endif %}
     {% else %}
-      <form class="text-center mt-4" action="/set_active_property/{{form.id}}" method="post">
+      <form class="text-center mt-4" action="/set_active_property/{{form.id}}/form" method="post">
         <button class="btn btn-primary">Set Active</button>
       </form>
     {% endif %}
-    <form class="text-center mt-2" action="/edit_form/{{form.id}}">
-      <button class="btn btn-warning">Edit Form</button>
+    <form id="delete_form" class="text-center mt-2" action="/form/{{form.id}}/delete">
+      <button class="btn btn-danger">Delete Form</button>
     </form>
   
   </div>
   <div class="border p-2 w-75 text-center">
-    <button onclick="print()" class="m-4 btn btn-primary">Print Paid Reservations</button>
+    <div class="d-flex justify-content-between">
+      <button onclick="print()" class="m-4 btn btn-primary">Print Paid Reservations</button>
+      <input type="text" class="form-control m-4" style="width:500px; height:40px;" id="search" onkeyup='search()' placeholder="Search for respondents...">
+    </div>
+
     <div class="m-4 mt-0 overflow-auto">
       <table id="order-table" class="table table-hover table-bordered">
         <thead class="table-light">
@@ -70,10 +74,18 @@
         </thead>
         <tbody>
           {% for respondent in form.respondents %}
-            <tr role="button" class="item" data-bs-toggle="modal" data-bs-target="#showRespondent">
+            <tr role="button" class="item"
+             onclick="getRespondent('{{respondent.id}}')" 
+             data-bs-toggle="modal" data-bs-target="#showRespondent">
               <th scope="row">{{respondent.name}}</th>
               <td>{{respondent.grade_section}}</td>
-              <td>{{"Paid" if respondent.paid else "Pending"}}</td> 
+              <td>
+                {% if respondent.paid %}
+                  <span class='badge bg-success'>Done</span>
+                {% else %}
+                  <span class='badge bg-warning'>Pending</span>
+                {% endif %}
+              </td>
               {% for weekday in ['monday','tuesday','wednesday','thursday','friday'] %}
                 <td>
                   {% for reservation in respondent.reservations %}
@@ -99,16 +111,77 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        
+        <p><b>Name</b>: <span id="name"></span></p>
+        <p><b>Grade and Section</b>: <span id="grade_section"></span></p>
+        <p><b>Paid</b>: <span id="paid"></span></p>
+        <hr>
+        <p><b>Monday</b>: <span id="monday"></span></p>
+        <p><b>Tuesday</b>: <span id="tuesday"></span></p>
+        <p><b>Wednesday</b>: <span id="wednesday"></span></p>
+        <p><b>Thursday</b>: <span id="thursday"></span></p>
+        <p><b>Friday</b>: <span id="friday"></span></p>
+        <hr>
+        <div class="mt-4 mb-3 text-end">
+          <form id="set_paid" method="post">
+            <button type="submit" class="btn-primary btn">Set Paid/Unpaid</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+</script>
 <script type="text/javascript">
+  $('#delete_form').submit(function() {
+    return confirm('Are you sure you want to delete?')
+  })
+
   function print() {
     window.location="{{ url_for('print_reservations.print', FormID=form.id) }}"
-   
   } 
+  function showRespondent() {
+    var showRespondentModal = document.getElementById("showRespondent")
+    console.log(showRespondentModal)
+    var body = showRespondentModal.getElementsByClassName("modal-body")[0]
+  }
+
+  function search() {
+      var input = document.getElementById("search");
+      var filter = input.value.toUpperCase();
+      var items = document.getElementsByClassName("item");
+
+      for (i = 0; i < items.length; i++) {
+          txtValue = items[i].getElementsByTagName("th")[0].innerHTML
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            items[i].style.display = "";
+          } else {
+            items[i].style.display = "none";
+          }
+      }
+  }
+  
+  async function getRespondent(id) {
+    const response = await fetch ("/get_respondent/"+id)
+    const respondent = await response.json();
+    const nameField = document.getElementById("name")
+    nameField.innerHTML = respondent["name"]
+    const gradeField = document.getElementById("grade_section")
+    gradeField.innerHTML = respondent["grade_section"]
+    const paidField = document.getElementById("paid")
+    paidField.innerHTML = respondent["paid"] ? "<span class='badge bg-success'>Done</span>" : "<span class='badge bg-warning'>Pending</span>" 
+    for (const weekday of ["monday","tuesday","wednesday","thursday","friday"]) {
+      const weekdayField = document.getElementById(weekday)
+      if (weekdayField) {
+        for (const item of respondent[weekday]) {
+          weekdayField.innerHTML +=  '<span class="badge rounded-pill text-bg-secondary">'+item.food_item.name+' - ₱'+item.food_item.price+' </span>'
+        }
+      }
+    }
+    const setPaidForm = document.getElementById("set_paid")
+    setPaidForm.setAttribute("action", "/respondent/"+respondent['id']+"/set_paid")
+  }
+
 </script>
 {% endblock %}

@@ -13,6 +13,9 @@ class Form(db.Model):
     week = db.Column(db.String(10), nullable=False)
     respondents = db.relationship("Respondent", backref="form")
     options = db.relationship("Options", backref="form")
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
 
 class Respondent(db.Model):
@@ -25,6 +28,9 @@ class Respondent(db.Model):
     form_id = db.Column(db.Integer, db.ForeignKey('form.form_id'))
     reservations = db.relationship("Reservation", backref="respondent")
 
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 class Options(db.Model):
     __tablename__ = "options"
 
@@ -33,6 +39,9 @@ class Options(db.Model):
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'))
     weekday = db.Column(db.Text)
 
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 class Reservation(db.Model):
     __tablename__ = "reservation"
 
@@ -40,6 +49,9 @@ class Reservation(db.Model):
     respondent_id = db.Column(db.Integer, db.ForeignKey('respondent.id'))
     food_item_id = db.Column(db.Integer, db.ForeignKey('food_item.id'))
     weekday = db.Column(db.Text)
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class FoodItem(db.Model):
     __tablename__ = "food_item"
@@ -51,4 +63,7 @@ class FoodItem(db.Model):
     value = db.Column(db.Text)
     image = db.Column(db.Text)
     price = db.Column(db.Integer)
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
