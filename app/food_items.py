@@ -1,10 +1,7 @@
-import os.path
-import ast
 from flask import (
     Blueprint, redirect, render_template, request,  url_for
 )
 from app.models import FoodItem
-from app.models import Options
 from app.db import db
 
 bp = Blueprint('food_items', __name__, )

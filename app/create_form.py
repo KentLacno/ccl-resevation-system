@@ -1,46 +1,34 @@
-import os.path
-import ast
 import json
 
 from flask import (
-    Blueprint, redirect, render_template, request,  url_for
+    Blueprint, redirect, render_template, request,  url_for, session
 )
 
 from app.db import db
 
-from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 import datetime
 from datetime import timedelta
 from app.models import Form
 from app.models import FoodItem
 from app.models import Options
-from food_items import *
 
 bp = Blueprint('create_form', __name__, )
 
 SCOPES = ["https://www.googleapis.com/auth/forms.body"]
 
 def build_form_service():
-  creds = None
-  if os.path.exists("form_token.json"):
-    try:
-      creds = Credentials.from_authorized_user_file("form_token.json", SCOPES)
-    except:
-      if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-          creds.refresh(Request())
-        else:
-          flow = InstalledAppFlow.from_client_secrets_file(
-              "credentials.json", SCOPES
-          )
-          creds = flow.run_local_server(port=0)
-        with open("form_token.json", "w") as token:
-          token.write(creds.to_json())
-
+  token = json.loads(session.get("token"))
+  creds = Credentials(
+    token=token["token"],
+    refresh_token=token["refresh_token"],
+    token_uri=token["token_uri"],
+    client_id=token["client_id"],
+    client_secret=token["client_secret"],
+    scopes=token["scopes"],
+  )
+  
   form_service = build("forms", "v1", credentials=creds)
   return form_service
 
@@ -195,11 +183,4 @@ def create_form():
       return redirect(url_for('index',success=True))
   else:
     food_items = FoodItem.query.all()
-    print(FOOD_ITEMS)
     return render_template('create_form.html', food_items=food_items)
-
-@bp.route("/test", methods=["POST", "GET"])
-def test():
-    food_items = FoodItem.query.all()
-    print(FOOD_ITEMS)
-    return "ahh"

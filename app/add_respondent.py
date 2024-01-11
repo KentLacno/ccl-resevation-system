@@ -1,8 +1,6 @@
-import os.path
-import json
 import re
 from flask import (
-    Blueprint, redirect, render_template, request,  url_for
+    Blueprint, request,
 )
 
 from app.models import Form

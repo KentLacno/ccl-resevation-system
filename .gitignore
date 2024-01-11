@@ -1,6 +1,8 @@
 credentials.json
 form_token.json
 script_token.json
+app/edit_form.py
+flask_session/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

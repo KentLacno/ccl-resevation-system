@@ -1,7 +1,5 @@
-import os.path
-import ast
 from flask import (
-    Blueprint, redirect, render_template, request,  url_for
+    Blueprint, render_template,
 )
 from app.models import Form
 from app.models import Respondent

@@ -1,50 +1,38 @@
-import os.path
-import ast
 import json
-import requests
 
 from flask import (
-    Blueprint, redirect, render_template, request,  url_for
+    Blueprint, redirect, render_template, request,  url_for, session
 )
 
 from app.db import db
 
-from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-import datetime
-from datetime import timedelta
 from app.models import Form
-from food_items import *
 
 bp = Blueprint('index', __name__, )
 
 SCOPES = ["https://www.googleapis.com/auth/script.scriptapp", "https://www.googleapis.com/auth/script.external_request", "https://www.googleapis.com/auth/forms"]
 
 def build_script_service():
-  creds = None
-  if os.path.exists("script_token.json"):
-    try:
-      creds = Credentials.from_authorized_user_file("script_token.json", SCOPES)
-    except:
-      if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-          creds.refresh(Request())
-        else:
-          flow = InstalledAppFlow.from_client_secrets_file(
-              "credentials.json", SCOPES
-          )
-          creds = flow.run_local_server(port=0)
-        with open("script_token.json", "w") as token:
-          token.write(creds.to_json())
-
+  token = json.loads(session.get("token"))
+  creds = Credentials(
+    token=token["token"],
+    refresh_token=token["refresh_token"],
+    token_uri=token["token_uri"],
+    client_id=token["client_id"],
+    client_secret=token["client_secret"],
+    scopes=token["scopes"],
+  )
+  
   script_service = build("script", "v1", credentials=creds)
   return script_service
 
 @bp.route("/")
 def index():
+  if not session.get("token"):
+    return redirect("/login")
+  print(session.get("token"))
   alert = request.args.get('alert')
   primary_form = Form.query.filter_by(primary=True).first()
   forms = Form.query.filter_by(primary=False)
